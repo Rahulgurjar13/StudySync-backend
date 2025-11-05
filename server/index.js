@@ -367,9 +367,23 @@ app.use(cors({
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
-// Serve static files from React build (for production)
-const frontendPath = path.join(__dirname, '..', 'dist');
-app.use(express.static(frontendPath));
+// Root endpoint
+app.get('/', (req, res) => {
+  res.json({
+    message: 'Tandem Track Mate API Server',
+    version: '1.0.0',
+    status: 'running',
+    endpoints: {
+      auth: '/api/auth',
+      tasks: '/api/tasks',
+      partnerships: '/api/partnerships',
+      resources: '/api/resources',
+      focus: '/api/focus',
+      points: '/api/points',
+      health: '/health'
+    }
+  });
+});
 
 // API Routes
 app.use('/api/auth', authRoutes);
@@ -384,14 +398,13 @@ app.get('/health', (req, res) => {
   res.json({ status: 'OK', message: 'Tandem Track Mate API is running' });
 });
 
-// Serve React app for all other routes (SPA fallback)
-app.get('*', (req, res) => {
-  // Don't serve index.html for API routes or socket.io
-  if (!req.path.startsWith('/api') && !req.path.startsWith('/socket.io')) {
-    res.sendFile(path.join(frontendPath, 'index.html'));
-  } else {
-    res.status(404).json({ error: 'Route not found' });
-  }
+// 404 handler for undefined routes
+app.use((req, res) => {
+  res.status(404).json({ 
+    error: 'Route not found',
+    path: req.path,
+    method: req.method
+  });
 });
 
 // Error handler
