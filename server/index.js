@@ -28,8 +28,10 @@ const io = new Server(httpServer, {
     origin: [
       "http://localhost:5173",
       "http://localhost:3000",
+      "https://study-sync11.vercel.app",
       process.env.CLIENT_URL || "http://localhost:8080",
-      /\.onrender\.com$/  // Allow all Render subdomains
+      /\.onrender\.com$/,  // Allow all Render subdomains
+      /\.vercel\.app$/     // Allow all Vercel subdomains
     ],
     methods: ["GET", "POST"],
     credentials: true
@@ -357,8 +359,10 @@ app.use(cors({
   origin: [
     "http://localhost:5173",
     "http://localhost:3000",
+    "https://study-sync11.vercel.app",
     process.env.CLIENT_URL || "http://localhost:8080",
-    /\.onrender\.com$/  // Allow all Render subdomains
+    /\.onrender\.com$/,  // Allow all Render subdomains
+    /\.vercel\.app$/     // Allow all Vercel subdomains
   ],
   credentials: true,
   methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
