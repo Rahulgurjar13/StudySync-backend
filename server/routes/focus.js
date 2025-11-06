@@ -305,20 +305,35 @@ router.post('/active-session', authenticateToken, async (req, res) => {
     });
 
     if (focusSession) {
-      // CRITICAL FIX: Update ONLY activeSessionMinutes, keep completed focusMinutes intact
-      focusSession.activeSessionMinutes = minutesToSave;
+      // ✅ CRITICAL FIX: If clearing active session (minutesToSave === 0), move current active to completed
+      if (minutesToSave === 0 && focusSession.activeSessionMinutes > 0) {
+        console.log('[FOCUS] Moving active session to completed:', {
+          previousCompleted: focusSession.focusMinutes,
+          previousActive: focusSession.activeSessionMinutes,
+          newCompleted: focusSession.focusMinutes + focusSession.activeSessionMinutes
+        });
+        
+        // Move active minutes to completed focusMinutes
+        focusSession.focusMinutes += focusSession.activeSessionMinutes;
+        focusSession.activeSessionMinutes = 0;
+        focusSession.sessionStartTime = null; // Clear session start time
+      } else {
+        // Normal update: just set the active session minutes
+        focusSession.activeSessionMinutes = minutesToSave;
+        
+        // Save session start time if provided
+        if (sessionStartTime) {
+          focusSession.sessionStartTime = new Date(sessionStartTime);
+        }
+      }
+      
       const totalMinutes = focusSession.focusMinutes + focusSession.activeSessionMinutes;
       focusSession.achieved = totalMinutes >= 120;
       focusSession.lastUpdated = new Date();
       
-      // Save session start time if provided
-      if (sessionStartTime) {
-        focusSession.sessionStartTime = new Date(sessionStartTime);
-      }
-      
       console.log('[FOCUS] Updating existing session:', {
         completedMinutes: focusSession.focusMinutes,
-        newActiveMinutes: minutesToSave,
+        activeMinutes: focusSession.activeSessionMinutes,
         totalMinutes: totalMinutes,
         sessionStartTime: focusSession.sessionStartTime
       });
