@@ -33,8 +33,9 @@ const io = new Server(httpServer, {
       /\.onrender\.com$/,  // Allow all Render subdomains
       /\.vercel\.app$/     // Allow all Vercel subdomains
     ],
-    methods: ["GET", "POST"],
-    credentials: true
+    methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
+    credentials: true,
+    allowedHeaders: ['Content-Type', 'Authorization']
   },
   // CRITICAL: Increase max message size for high-quality video/audio streams
   maxHttpBufferSize: 1e8, // 100 MB for HD video chunks
@@ -47,16 +48,34 @@ const io = new Server(httpServer, {
   },
   // Transports: WebSocket preferred for real-time audio/video
   transports: ['websocket', 'polling'],
-  allowUpgrades: true
+  allowUpgrades: true,
+  // Allow any path for Socket.IO
+  path: '/socket.io/',
+  // Disable server-side logging for cleaner output
+  serveClient: false
 });
 
 // Store active rooms and participants
 const rooms = new Map();
 const userSockets = new Map();
 
+// Handle Socket.IO connection errors
+io.engine.on('connection_error', (err) => {
+  console.error('Socket.IO connection error:', err);
+});
+
 // Socket.IO connection handling
 io.on('connection', (socket) => {
-  console.log(`👤 User connected: ${socket.id}`);
+  console.log(`👤 User connected: ${socket.id} from ${socket.handshake.address}`);
+
+  // Handle connection errors
+  socket.on('error', (error) => {
+    console.error(`Socket error for ${socket.id}:`, error);
+  });
+
+  socket.on('connect_error', (error) => {
+    console.error(`Connection error for ${socket.id}:`, error);
+  });
 
   // Join a study room
   socket.on('join-room', ({ roomCode, userName, userId }) => {
@@ -377,6 +396,8 @@ app.get('/', (req, res) => {
     message: 'Tandem Track Mate API Server',
     version: '1.0.0',
     status: 'running',
+    socketio: 'enabled',
+    activeConnections: io.engine.clientsCount || 0,
     endpoints: {
       auth: '/api/auth',
       tasks: '/api/tasks',
@@ -384,8 +405,19 @@ app.get('/', (req, res) => {
       resources: '/api/resources',
       focus: '/api/focus',
       points: '/api/points',
-      health: '/health'
+      health: '/health',
+      socket: '/socket.io/'
     }
+  });
+});
+
+// Socket.IO health check
+app.get('/socket-status', (req, res) => {
+  res.json({
+    socketio: 'running',
+    activeConnections: io.engine.clientsCount || 0,
+    activeRooms: rooms.size,
+    connectedUsers: userSockets.size
   });
 });
 
