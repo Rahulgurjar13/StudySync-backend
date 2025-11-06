@@ -3,6 +3,7 @@
 ## ✅ Pre-Deployment Checklist
 
 ### 1. Environment Variables Ready
+
 Before deploying, make sure you have these values ready:
 
 - [ ] **MongoDB URI**: Get from MongoDB Atlas
@@ -10,6 +11,7 @@ Before deploying, make sure you have these values ready:
 - [ ] **Client URL**: Your frontend URL (or leave blank for now)
 
 ### 2. MongoDB Atlas Setup
+
 - [ ] MongoDB Atlas account created
 - [ ] Database cluster created
 - [ ] Database user created with password
@@ -17,12 +19,15 @@ Before deploying, make sure you have these values ready:
 - [ ] Connection string copied
 
 **Get MongoDB URI:**
+
 ```
 mongodb+srv://<username>:<password>@<cluster>.mongodb.net/<database>?retryWrites=true&w=majority
 ```
 
 ### 3. Generate JWT Secret
+
 Run this command to generate a secure JWT secret:
+
 ```bash
 node -e "console.log(require('crypto').randomBytes(64).toString('hex'))"
 ```
@@ -32,6 +37,7 @@ node -e "console.log(require('crypto').randomBytes(64).toString('hex'))"
 ## 📋 Deployment Steps on Render
 
 ### Step 1: Push Code to GitHub
+
 ```bash
 # Make sure all changes are committed
 git add .
@@ -49,22 +55,23 @@ git push origin main
 
 Use these **EXACT** settings:
 
-| Setting | Value |
-|---------|-------|
-| **Name** | `studysync-backend` (or your choice) |
-| **Region** | Oregon (US West) |
-| **Branch** | `main` |
-| **Root Directory** | `server` ⚠️ **IMPORTANT** |
-| **Runtime** | Node |
-| **Build Command** | `npm install` |
-| **Start Command** | `node index.js` |
-| **Instance Type** | Free |
+| Setting            | Value                                |
+| ------------------ | ------------------------------------ |
+| **Name**           | `studysync-backend` (or your choice) |
+| **Region**         | Oregon (US West)                     |
+| **Branch**         | `main`                               |
+| **Root Directory** | `server` ⚠️ **IMPORTANT**            |
+| **Runtime**        | Node                                 |
+| **Build Command**  | `npm install`                        |
+| **Start Command**  | `node index.js`                      |
+| **Instance Type**  | Free                                 |
 
 ### Step 4: Add Environment Variables
 
 Click **"Advanced"** and add:
 
 #### Required Variables:
+
 ```
 NODE_ENV = production
 MONGODB_URI = mongodb+srv://username:password@cluster.mongodb.net/database
@@ -72,11 +79,13 @@ JWT_SECRET = (paste your generated secret here)
 ```
 
 #### Optional Variables:
+
 ```
 CLIENT_URL = https://your-frontend-url.com
 ```
 
 ### Step 5: Deploy
+
 1. Click **"Create Web Service"**
 2. Wait 3-5 minutes for deployment
 3. Monitor the build logs
@@ -88,10 +97,13 @@ CLIENT_URL = https://your-frontend-url.com
 Once deployed, your URL will be: `https://studysync-backend.onrender.com`
 
 ### Test 1: Root Endpoint
+
 ```bash
 curl https://studysync-backend.onrender.com/
 ```
+
 Expected response:
+
 ```json
 {
   "message": "Tandem Track Mate API Server",
@@ -102,10 +114,13 @@ Expected response:
 ```
 
 ### Test 2: Health Check
+
 ```bash
 curl https://studysync-backend.onrender.com/health
 ```
+
 Expected response:
+
 ```json
 {
   "status": "OK",
@@ -114,6 +129,7 @@ Expected response:
 ```
 
 ### Test 3: Register User
+
 ```bash
 curl -X POST https://studysync-backend.onrender.com/api/auth/register \
   -H "Content-Type: application/json" \
@@ -125,6 +141,7 @@ curl -X POST https://studysync-backend.onrender.com/api/auth/register \
 ```
 
 ### Test 4: Login User
+
 ```bash
 curl -X POST https://studysync-backend.onrender.com/api/auth/login \
   -H "Content-Type: application/json" \
@@ -139,29 +156,38 @@ curl -X POST https://studysync-backend.onrender.com/api/auth/login \
 ## 🔧 Common Issues & Solutions
 
 ### Issue 1: "Cannot find package.json"
+
 **Solution:** Make sure **Root Directory** is set to `server`
 
 ### Issue 2: "MongoDB connection failed"
+
 **Solutions:**
+
 - Verify MongoDB URI is correct
 - Check username/password in connection string
 - Ensure IP whitelist includes `0.0.0.0/0` in MongoDB Atlas
 - Verify database user has read/write permissions
 
 ### Issue 3: "Module not found" errors
+
 **Solution:** Make sure all dependencies are in `dependencies` (not `devDependencies`)
+
 ```bash
 npm install --save <package-name>
 ```
 
 ### Issue 4: Service spins down after 15 minutes
+
 **This is normal on free tier:**
+
 - Free services sleep after 15 minutes of inactivity
 - Wake up on next request (takes 30-60 seconds)
 - Upgrade to paid plan to keep service always active
 
 ### Issue 5: CORS errors
+
 **Solution:** Add your frontend URL to environment variables:
+
 ```
 CLIENT_URL=https://your-frontend.onrender.com
 ```
@@ -171,12 +197,14 @@ CLIENT_URL=https://your-frontend.onrender.com
 ## 📊 Monitoring
 
 ### View Logs
+
 1. Go to Render Dashboard
 2. Click your service
 3. Click **"Logs"** tab
 4. View real-time logs
 
 ### Metrics
+
 1. Click **"Metrics"** tab
 2. View:
    - CPU usage
@@ -185,7 +213,9 @@ CLIENT_URL=https://your-frontend.onrender.com
    - Response times
 
 ### Manual Deploy
+
 If you need to redeploy:
+
 1. Go to service dashboard
 2. Click **"Manual Deploy"**
 3. Select **"Deploy latest commit"** or **"Clear build cache & deploy"**
@@ -195,15 +225,19 @@ If you need to redeploy:
 ## 🔄 Updating Your App
 
 ### Auto-Deploy (Recommended)
+
 Render automatically deploys when you push to GitHub:
+
 ```bash
 git add .
 git commit -m "Update feature"
 git push origin main
 ```
+
 Render will detect the push and redeploy automatically!
 
 ### Manual Deploy
+
 1. Push changes to GitHub
 2. Go to Render Dashboard
 3. Click "Manual Deploy" → "Deploy latest commit"
@@ -226,6 +260,7 @@ Render will detect the push and redeploy automatically!
 ## 📝 Important Notes
 
 ### Free Tier Limitations:
+
 - ✅ 750 hours/month
 - ✅ Auto-deploy from GitHub
 - ⚠️ Spins down after 15 min inactivity
@@ -233,6 +268,7 @@ Render will detect the push and redeploy automatically!
 - ⚠️ Limited to 512 MB RAM
 
 ### For Production:
+
 - Upgrade to Starter plan ($7/month)
 - Keeps service always running
 - More resources
@@ -251,6 +287,7 @@ Render will detect the push and redeploy automatically!
 ## ✅ Deployment Complete!
 
 Your backend is now live at:
+
 ```
 https://your-service-name.onrender.com
 ```
@@ -258,6 +295,7 @@ https://your-service-name.onrender.com
 Save this URL for your frontend configuration!
 
 **Example frontend .env:**
+
 ```
 VITE_API_URL=https://studysync-backend.onrender.com
 VITE_SOCKET_URL=https://studysync-backend.onrender.com

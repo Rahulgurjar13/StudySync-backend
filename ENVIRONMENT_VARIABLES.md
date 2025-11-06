@@ -17,6 +17,7 @@ CLIENT_URL=https://study-sync11.vercel.app
 ```
 
 ### Important Notes:
+
 - ✅ Make sure `CLIENT_URL` is set to your Vercel frontend URL
 - ✅ No trailing slash in `CLIENT_URL`
 - ✅ After adding/updating, click "Save Changes"
@@ -43,11 +44,12 @@ VITE_SOCKET_URL=https://studysync-backend-2.onrender.com
 3. Click **Settings**
 4. Click **Environment Variables** (left sidebar)
 5. Add each variable:
+
    - **Name:** `VITE_API_URL`
    - **Value:** `https://studysync-backend-2.onrender.com`
    - **Environments:** Select all (Production, Preview, Development)
    - Click **Save**
-   
+
    - **Name:** `VITE_SOCKET_URL`
    - **Value:** `https://studysync-backend-2.onrender.com`
    - **Environments:** Select all (Production, Preview, Development)
@@ -68,51 +70,51 @@ VITE_SOCKET_URL=https://studysync-backend-2.onrender.com
 In your frontend code (likely in `src/socket.js` or `src/utils/socket.js`), make sure it looks like this:
 
 ```javascript
-import { io } from 'socket.io-client';
+import { io } from "socket.io-client";
 
 // Use environment variable or fallback to localhost for development
-const SOCKET_URL = import.meta.env.VITE_SOCKET_URL || 'http://localhost:3001';
+const SOCKET_URL = import.meta.env.VITE_SOCKET_URL || "http://localhost:3001";
 
-console.log('🔌 Connecting to Socket.IO:', SOCKET_URL);
+console.log("🔌 Connecting to Socket.IO:", SOCKET_URL);
 
 const socket = io(SOCKET_URL, {
   // Use WebSocket first, fallback to polling
-  transports: ['websocket', 'polling'],
-  
+  transports: ["websocket", "polling"],
+
   // Send cookies for authentication
   withCredentials: true,
-  
+
   // Auto-reconnect settings
   reconnection: true,
   reconnectionAttempts: 5,
   reconnectionDelay: 1000,
   reconnectionDelayMax: 5000,
-  
+
   // Timeout settings
   timeout: 20000,
-  
+
   // Enable automatic upgrade from polling to WebSocket
   upgrade: true,
-  
+
   // Force new connection
-  forceNew: false
+  forceNew: false,
 });
 
 // Connection event handlers
-socket.on('connect', () => {
-  console.log('✅ Connected to Socket.IO server:', socket.id);
+socket.on("connect", () => {
+  console.log("✅ Connected to Socket.IO server:", socket.id);
 });
 
-socket.on('connect_error', (error) => {
-  console.error('❌ Socket.IO connection error:', error.message);
+socket.on("connect_error", (error) => {
+  console.error("❌ Socket.IO connection error:", error.message);
 });
 
-socket.on('disconnect', (reason) => {
-  console.log('⚠️ Disconnected from Socket.IO:', reason);
+socket.on("disconnect", (reason) => {
+  console.log("⚠️ Disconnected from Socket.IO:", reason);
 });
 
-socket.on('reconnect', (attemptNumber) => {
-  console.log('🔄 Reconnected to Socket.IO after', attemptNumber, 'attempts');
+socket.on("reconnect", (attemptNumber) => {
+  console.log("🔄 Reconnected to Socket.IO after", attemptNumber, "attempts");
 });
 
 export default socket;
@@ -121,16 +123,18 @@ export default socket;
 ### ⚠️ Important: Remove Namespace if Present
 
 If your code looks like this:
+
 ```javascript
 // ❌ WRONG - Has namespace
-io('https://studysync-backend-2.onrender.com/video')
-io('https://studysync-backend-2.onrender.com/call')
+io("https://studysync-backend-2.onrender.com/video");
+io("https://studysync-backend-2.onrender.com/call");
 ```
 
 Change to:
+
 ```javascript
 // ✅ CORRECT - No namespace
-io('https://studysync-backend-2.onrender.com')
+io("https://studysync-backend-2.onrender.com");
 ```
 
 ### API Calls Configuration
@@ -138,19 +142,19 @@ io('https://studysync-backend-2.onrender.com')
 Make sure your API calls also use the environment variable:
 
 ```javascript
-const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:3001';
+const API_URL = import.meta.env.VITE_API_URL || "http://localhost:3001";
 
 // Example: Login API call
 const login = async (email, password) => {
   const response = await fetch(`${API_URL}/api/auth/login`, {
-    method: 'POST',
+    method: "POST",
     headers: {
-      'Content-Type': 'application/json',
+      "Content-Type": "application/json",
     },
-    credentials: 'include', // Important for cookies
+    credentials: "include", // Important for cookies
     body: JSON.stringify({ email, password }),
   });
-  
+
   return response.json();
 };
 ```
@@ -160,31 +164,36 @@ const login = async (email, password) => {
 ## Testing the Connection
 
 ### 1. Test Backend Health
+
 ```bash
 curl https://studysync-backend-2.onrender.com/health
 ```
 
 Expected:
+
 ```json
-{"status":"OK","message":"Tandem Track Mate API is running"}
+{ "status": "OK", "message": "Tandem Track Mate API is running" }
 ```
 
 ### 2. Test Socket.IO Status
+
 ```bash
 curl https://studysync-backend-2.onrender.com/socket-status
 ```
 
 Expected:
+
 ```json
 {
-  "socketio":"running",
-  "activeConnections":0,
-  "activeRooms":0,
-  "connectedUsers":0
+  "socketio": "running",
+  "activeConnections": 0,
+  "activeRooms": 0,
+  "connectedUsers": 0
 }
 ```
 
 ### 3. Test Frontend
+
 1. Open browser DevTools (F12)
 2. Go to Console tab
 3. Visit: https://study-sync11.vercel.app
@@ -199,24 +208,32 @@ Expected:
 ## Troubleshooting
 
 ### Issue: Environment variables not updating
+
 **Solution:** After adding variables in Vercel:
+
 1. Go to Deployments tab
 2. Trigger a new deployment (push a commit or redeploy manually)
 
 ### Issue: Still connecting to localhost
-**Solution:** 
+
+**Solution:**
+
 1. Check if environment variables are added correctly in Vercel
 2. Make sure variable names start with `VITE_` prefix
 3. Redeploy frontend
 
 ### Issue: CORS errors
-**Solution:** 
+
+**Solution:**
+
 1. Make sure `CLIENT_URL` in Render backend is set to `https://study-sync11.vercel.app`
 2. No trailing slash
 3. Redeploy backend
 
 ### Issue: Socket.IO connection fails
+
 **Solution:**
+
 1. Check browser console for error details
 2. Make sure using `https://` not `http://`
 3. Remove any custom namespace from Socket.IO connection
@@ -227,6 +244,7 @@ Expected:
 ## Quick Checklist
 
 ### Backend (Render)
+
 - [ ] `NODE_ENV` = `production`
 - [ ] `MONGODB_URI` = (your MongoDB connection string)
 - [ ] `JWT_SECRET` = (secure random string)
@@ -236,6 +254,7 @@ Expected:
 - [ ] Socket status check passes: `/socket-status`
 
 ### Frontend (Vercel)
+
 - [ ] `VITE_API_URL` = `https://studysync-backend-2.onrender.com`
 - [ ] `VITE_SOCKET_URL` = `https://studysync-backend-2.onrender.com`
 - [ ] Variables are set for all environments (Production, Preview, Development)
@@ -248,16 +267,19 @@ Expected:
 ## Summary
 
 ### Backend URL:
+
 ```
 https://studysync-backend-2.onrender.com
 ```
 
 ### Frontend URL:
+
 ```
 https://study-sync11.vercel.app
 ```
 
 ### What's Configured:
+
 ✅ CORS allows your frontend domain
 ✅ Socket.IO configured for WebRTC
 ✅ MongoDB connected
@@ -265,6 +287,7 @@ https://study-sync11.vercel.app
 ✅ All API endpoints working
 
 ### Next Steps:
+
 1. Add environment variables in Vercel
 2. Fix Socket.IO connection code in frontend (remove namespace if present)
 3. Redeploy frontend

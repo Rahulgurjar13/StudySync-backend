@@ -61,16 +61,27 @@ const userSockets = new Map();
 
 // Handle Socket.IO connection errors
 io.engine.on('connection_error', (err) => {
-  console.error('Socket.IO connection error:', err);
+  console.error('❌ Socket.IO Engine connection error:', {
+    message: err.message,
+    code: err.code,
+    context: err.context
+  });
+});
+
+// Log when Socket.IO server is ready
+io.on('connect', () => {
+  console.log('🎥 Socket.IO server ready for connections');
 });
 
 // Socket.IO connection handling
 io.on('connection', (socket) => {
-  console.log(`👤 User connected: ${socket.id} from ${socket.handshake.address}`);
+  const clientOrigin = socket.handshake.headers.origin || 'unknown';
+  console.log(`👤 User connected: ${socket.id} from ${socket.handshake.address}, origin: ${clientOrigin}`);
+  console.log(`📊 Total connections: ${io.engine.clientsCount}`);
 
   // Handle connection errors
   socket.on('error', (error) => {
-    console.error(`Socket error for ${socket.id}:`, error);
+    console.error(`❌ Socket error for ${socket.id}:`, error);
   });
 
   socket.on('connect_error', (error) => {
